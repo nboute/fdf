@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/28 18:40:42 by nboute            #+#    #+#             */
-/*   Updated: 2016/12/06 22:13:33 by nboute           ###   ########.fr       */
+/*   Updated: 2016/12/07 21:59:46 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,58 +19,23 @@
 #include <math.h>
 #include "test.h"
 
-void	ft_drawseg(int x1, int y1, int x2, int y2, char	**tab, char c)
+void line(int x0, int y0, int x1, int y1, char **tab)
 {
-	int	dx;
-	int	dy;
-	int e;
+	int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
+	int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1; 
+	int err = (dx>dy ? dx : -dy)/2, e2;
 
-	e = 0;
-	dx = x2 - x1;
-	dy = y2 - y1;
-//	if (x1 < x2)
-//	{
-		while (x1 <= x2 && tab[y1][x1])
-		{
-			tab[y1][x1] = c;
-			e += dy;
-			if ((e << 1) >= dx)
-			{
-				y1++;
-				e -= dx;
-			}
-			x1++;
-		}
-//	}
-/*	else
-	{
-		while (y1 <= y2 && tab[y1])
-		{
-			tab[y1][x1] = c;
-			e += dx;
-			if ((e << 1) >= dy)
-			{
-				x1++;
-				e-= dy;
-			}
-			y1++;
-		}
-	}*/
-}
-
-t_point	*iso(t_point	*p)
-{
-	p->_x = (sqrt(2) / 2 * (double)p->x / (double)p->y);
-	p->_y = (sqrt((double)2 / (double)3) - ((double)1 / sqrt(6))
-			* (p->x + p->y));
-	return (p);
+	for(;;){
+		tab[y0][x0] = '1';
+		if (x0==x1 && y0==y1) break;
+		e2 = err;
+		if (e2 >-dx) { err -= dy; x0 += sx; }
+		if (e2 < dy) { err += dx; y0 += sy; }
+	}
 }
 
 int		main(int ac, char **av)
 {
-	t_point	point;
-	iso(&point);
-	/*
 	char	*str;
 	int		fd;
 	char	**tab;
@@ -85,7 +50,7 @@ int		main(int ac, char **av)
 	str[ret] = '\0';
 	tab = ft_strsplit(str, '\n');
 	i = 0;
-	while (i < 11)
+	while (tab[i])
 	{
 		j = 0;
 		n = 0;
@@ -101,9 +66,8 @@ int		main(int ac, char **av)
 		tab[i][n] = '\0';
 		i++;
 	}
-	ft_drawseg(1, 3, 16, 5, tab, '1');
+	line(1, 3, 16, 5, tab);
 	i = 0;
-	while (i < 11)
+	while (tab[i])
 		printf("%s\n", tab[i++]);
-		*/
 }
