@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/12/05 16:59:51 by nboute            #+#    #+#             */
-/*   Updated: 2016/12/12 20:56:46 by nboute           ###   ########.fr       */
+/*   Updated: 2016/12/15 03:39:24 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,9 @@ typedef struct s_honk
 	int prex;
 	int prey;
 	float	zoom;
+	int	xang;
+	int	yang;
+	int	zang;
 
 	int width;
 	int height;
@@ -41,6 +44,7 @@ typedef struct s_honk
 	int		ghei;
 	int		xrange;
 	int		yrange;
+	int		zrange;
 	int		minval;
 	char	*data;
 	unsigned int color;
