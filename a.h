@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/12/05 16:59:51 by nboute            #+#    #+#             */
-/*   Updated: 2016/12/15 03:39:24 by nboute           ###   ########.fr       */
+/*   Updated: 2016/12/28 12:39:39 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # define BROWN 0x00663300
 # define WHITE 0x00FFFFF
 # define PRE 500
+# define ROT 1
 
 typedef struct s_honk
 {
@@ -36,6 +37,9 @@ typedef struct s_honk
 	int	xang;
 	int	yang;
 	int	zang;
+	int	xrot;
+	int	yrot;
+	int	zrot;
 
 	int width;
 	int height;

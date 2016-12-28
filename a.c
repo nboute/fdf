@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/29 14:29:41 by nboute            #+#    #+#             */
-/*   Updated: 2016/12/16 22:58:00 by nboute           ###   ########.fr       */
+/*   Updated: 2016/12/28 12:44:11 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,33 +247,32 @@ int		ft_mouse_pressed(int button, int x, int y, t_honk *honk)
 	return (0);
 }
 
+int		ft_rotate_axis(t_honk *honk)
+{
+	if (honk->xrot || honk->yrot || honk->zrot)
+	{
+		honk->xang = (honk->xang + honk->xrot) % 360;
+		honk->yang = (honk->yang + honk->yrot) % 360;
+		honk->zang = (honk->zang + honk->zrot) % 360;
+		ft_empty_grid(honk);
+		ft_setmap(honk);
+		ft_rotateX(honk, (float)(M_PI * (float)honk->xang / (float)180));
+		ft_rotateY(honk, (float)(M_PI * (float)honk->yang / (float)180));
+		ft_rotateZ(honk, (float)(M_PI * (float)honk->zang / (float)180));
+		ft_draw(honk);
+	}
+	return (0);
+}
+
 int		ft_key_pressed(int keycode, t_honk *honk)
 {
 	printf("\n____________________________________\n");
-	ft_empty_grid(honk);
-	ft_setmap(honk);
 	if (keycode == 7)
-	{
-		honk->xang = (honk->xang + 30) % 360;
-		ft_rotateX(honk, (float)(M_PI * (float)honk->xang / (float)180));
-		ft_rotateY(honk, (float)(M_PI * (float)honk->yang / (float)180));
-		ft_rotateZ(honk, (float)(M_PI * (float)honk->zang / (float)180));
-	}
+		honk->xrot = honk->xrot == 0 ? 1 : 0;
 	if (keycode == 16)
-	{
-		honk->yang = (honk->yang + 30) % 360;
-		ft_rotateY(honk, (float)(M_PI * (float)honk->yang / (float)180));
-		ft_rotateX(honk, (float)(M_PI * (float)honk->xang / (float)180));
-		ft_rotateZ(honk, (float)(M_PI * (float)honk->zang / (float)180));
-	}
+		honk->yrot = honk->yrot == 0 ? 1 : 0;
 	if (keycode == 6)
-	{
-		honk->zang = (honk->zang + 30) % 360;
-		ft_rotateZ(honk, (float)(M_PI * (float)honk->zang / (float)180));
-		ft_rotateX(honk, (float)(M_PI * (float)honk->xang / (float)180));
-		ft_rotateY(honk, (float)(M_PI * (float)honk->yang / (float)180));
-	}
-		ft_draw(honk);
+		honk->zrot = honk->zrot == 0 ? 1 : 0;
 	printf("X %i | Y %i | Z %i\n", honk->xang, honk->yang, honk->zang);
 	return (0);
 }
@@ -350,24 +349,28 @@ int	main(int ac, char **av)
 	honk.xang = 0;
 	honk.yang = 0;
 	honk.zang = 0;
+	honk.xrot = 0;
+	honk.yrot = 0;
+	honk.zrot = 0;
 	honk.prex = 500;
 	honk.prey = 500;
 	printf("||%i|%i\n", honk.ghei, honk.gwid);
 	honk.grid[i] = NULL;
 	honk.width = 1000;
 	honk.height = 1000;
-	honk.zoom = 1;
+	honk.zoom = 7;
 	honk.mlx = mlx_init();
 	honk.win = mlx_new_window(honk.mlx, honk.width, honk.height, "mlx tests");
 	honk.img = mlx_new_image(honk.mlx, honk.width, honk.height);
 	honk.data = mlx_get_data_addr(honk.img, &honk.bpx, &honk.size, &honk.endian);
 	i = 0;
+	ft_rotate_axis(&honk);
 	ft_draw(&honk);
 	mlx_put_image_to_window(honk.mlx, honk.win, honk.img, 0, 0);
 	mlx_mouse_hook(honk.win, &ft_mouse_pressed, (void*)&honk);
 	mlx_key_hook(honk.win, &ft_key_pressed, (void*)&honk);
-	float o;
-	o = 0;
+//	float o;
+//	o = 0;
 	/*
 	sleep(2);
 	while (1)
@@ -379,5 +382,6 @@ int	main(int ac, char **av)
 		o = (o < 360) ? o + 1 : 0;
 		sleep(1);
 	}*/
-		mlx_loop(honk.mlx);
+	mlx_loop_hook(honk.mlx, &ft_rotate_axis, &honk);
+	mlx_loop(honk.mlx);
 }
