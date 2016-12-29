@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/29 14:29:41 by nboute            #+#    #+#             */
-/*   Updated: 2016/12/28 12:44:11 by nboute           ###   ########.fr       */
+/*   Updated: 2016/12/29 18:52:22 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,28 @@
 #include <math.h>
 #include <malloc/malloc.h>
 
+int		set_color(int cp)
+{
+	if (cp == 0)
+		return (BLUE);
+	else if (cp == 1)
+		return (BROWN);
+	else if (cp == 2)
+		return (GREEN);
+	else if (cp == 3)
+		return (PINK);
+	else if (cp == 4)
+		return (RED);
+	else if (cp == 5)
+		return (TURQUOISE);
+	else if (cp == 6)
+		return (VIOLET);
+	else if (cp == 7)
+		return (WHITE);
+	else
+		return (YELLOW);
+}
+
 void	ft_setmap(t_honk *honk)
 {
 	int	y;
@@ -30,18 +52,18 @@ void	ft_setmap(t_honk *honk)
 		x = 0;
 		while (x < honk->gwid)
 		{
-			honk->grid[y][x].x = honk->grid[y][x]._x;
-			honk->grid[y][x].y = honk->grid[y][x]._y;
-			honk->grid[y][x].z = honk->grid[y][x]._z;
+			honk->grid[y][x].x = honk->grid[y][x]._x * honk->zoom;
+			honk->grid[y][x].y = honk->grid[y][x]._y * honk->zoom;
+			honk->grid[y][x].z = honk->grid[y][x]._z * honk->zoom;
 			x++;
 		}
 		y++;
 	}
 }
-
-void	ft_set_colors(t_honk *honk, int min, int max)
+/*
+void	ft_set_colors(t_honk *honk, float min, float max)
 {
-	int	range;
+	float	range;
 	t_point	**g;
 	int	val;
 
@@ -55,14 +77,14 @@ void	ft_set_colors(t_honk *honk, int min, int max)
 		i = 0;
 		while (i < honk->gwid)
 		{
-			val = 255 * (((float)g[j][i].z / (float)range));
-			g[j][i].color = val * 0x000100;
+			val = 0.8 * (((float)g[j][i].z - min / (float)range));
+			g[j][i].color = ft_new_color(HUE, SAT, val, "hsl");
 			i++;
 		}
 		j++;
 	}
 }
-
+*/
 void	ft_rotateX(t_honk *honk, float angle)
 {
 	int		i;
@@ -136,15 +158,122 @@ void	ft_place_point(t_honk *honk, double y, double x, int color)
 {
 	int	_x;
 	int	_y;
+	t_crgb *rgb;
 
 	_x = (honk->bpx / 8) * (x + honk->prex);
 	_y = (y + honk->prey) * honk->size;
 //	if ((y + honk->prey) * honk->size > 0 &&
+//	rgb = ft_convert(HUE, SAT, lumi, "hsl2rgb");
 	if (_x >= 0 && _x < (honk->width * honk->bpx / 8) && _y >= 0 && _y < (honk->width * honk->size))
 	*(unsigned *)(honk->data + _y + _x ) = color;
+//	free(rgb);
 }
 
-void	ft_drawseg(long x0, long y0, long x1, long y1, t_honk *honk)
+void	ft_drawcolors(t_honk *honk)
+{
+	int	i;
+	int	j;
+	int	k;
+
+	k = 0;
+	while (k < 9)
+	{
+		i = 0;
+		while (i < 20)
+		{
+			j = 0;
+			while (j < 20)
+			{
+				ft_place_point(honk, (double)((i * k / 3) - 500), (double)((j * (k % 3)) - 500), set_color(k));
+				j++;
+			}
+			i++;
+		}
+		k++;
+	}
+}
+
+int		ft_prepdraw(long *l0, long *l1, int *d, int *s)
+{
+	d[0] = labs(l1[0] - l0[0]);
+	s[0] = l0[0] < l1[0] ? 1 : -1;
+	d[1] = labs(l1[1] - l0[1]);
+	s[1] = l0[1] < l1[1] ? 1 : -1;
+	return (d[0] > d[1] ? d[0] / 2 : -d[1] / 2);
+}
+
+void	ft_getpoints(t_point *p0, t_point *p1, long *l0, long *l1)
+{
+	l0[0] = (long)p0->x;
+	l0[1] = (long)p0->y;
+	l1[0] = (long)p1->x;
+	l1[1] = (long)p1->y;
+}
+
+void	ft_drawseg(t_point *p0, t_point *p1, t_honk *honk)
+{
+	long	l0[2];
+	long	l1[2];
+	int		d[2];
+	int		s[2];
+	int		e[2];
+
+	ft_getpoints(p0, p1, &l0[0], &l1[0]);
+	e[0] = ft_prepdraw(&l0[0], &l1[0], &d[0], &s[0]);
+	while (1)
+	{
+		ft_place_point(honk, l0[1], l0[0], honk->color);
+		if (l0[0] == l1[0] && l1[1] == l0[1])
+			return ;
+		e[1] = e[0];
+		if (e[1] > -d[0])
+		{
+			e[0] -= d[1];
+			l0[0] += s[0];
+		}
+		if (e[1] < d[1])
+		{
+			e[0] += d[0];
+			l0[1] += s[1];
+		}
+	}
+}
+/*
+void	ft_drawseg(t_point *p0, t_point *p1, t_honk *honk)
+{
+	long x0 = p0->x;
+	long y0 = p0->y;
+	long x1 = p1->x;
+	long y1 = p1->y;
+	int dx = labs(x1 - x0),
+		sx = x0 < x1 ? 1 : -1;
+	int dy = labs(y1 - y0),
+		sy = y0 < y1 ? 1 : -1; 
+	int err = (dx > dy ? dx : -dy)/2,
+		e2;
+
+	int	draw;
+	draw = 0;
+
+	while (1)
+	{
+		ft_place_point(honk, y0, x0, (int)0x00FFFFFF);
+		if (x0 == x1 && y1 == y0)
+			return ;
+		e2 = err;
+		if (e2 >-dx)
+		{
+			err -= dy;
+			x0 += sx;
+		}
+		if (e2 < dy)
+		{
+			err += dx;
+			y0 += sy;
+		}
+	}
+}*/
+/*void	ft_drawseg(long x0, long y0, long x1, long y1, t_honk *honk)
 {
 	int dx = labs(x1-x0),
 		sx = x0<x1 ? 1 : -1;
@@ -152,6 +281,7 @@ void	ft_drawseg(long x0, long y0, long x1, long y1, t_honk *honk)
 		sy = y0<y1 ? 1 : -1; 
 	int err = (dx>dy ? dx : -dy)/2,
 		e2;
+
 	int	draw;
 	draw = 0;
 
@@ -174,7 +304,7 @@ void	ft_drawseg(long x0, long y0, long x1, long y1, t_honk *honk)
 			y0 += sy;
 		}
 	}
-}
+}*/
 
 void	ft_drawmap(t_honk *honk)
 {
@@ -189,11 +319,13 @@ void	ft_drawmap(t_honk *honk)
 		{
 			if (j + 1 < honk->ghei)
 			{
-				ft_drawseg(lround(honk->grid[j][i].x * honk->zoom), lround(honk->grid[j][i].y * honk->zoom), lround(honk->grid[j + 1][i].x * honk->zoom), lround(honk->grid[j + 1][i].y * honk->zoom), honk);
+				ft_drawseg(&honk->grid[j][i], &honk->grid[j + 1][i], honk);
+//				ft_drawseg(lround(honk->grid[j][i].x), lround(honk->grid[j][i].y), lround(honk->grid[j + 1][i].x), lround(honk->grid[j + 1][i].y), honk);
 			}
 			if (i + 1 < honk->gwid)
 			{
-				ft_drawseg(honk->grid[j][i].x * honk->zoom, honk->grid[j][i].y * honk->zoom, honk->grid[j][i + 1].x * honk->zoom, honk->grid[j][i + 1].y * honk->zoom, honk);
+				ft_drawseg(&honk->grid[j][i], &honk->grid[j][i + 1], honk);
+//			ft_drawseg(honk->grid[j][i].x, honk->grid[j][i].y, honk->grid[j][i + 1].x, honk->grid[j][i + 1].y, honk);
 			}
 			i++;
 		}
@@ -231,29 +363,44 @@ void	ft_draw(t_honk *honk)
 //		i++;
 //	}
 	ft_drawmap(honk);
+	ft_drawcolors(honk);
 	mlx_put_image_to_window(honk->mlx, honk->win, honk->img, 0, 0);
 }
 
 int		ft_mouse_pressed(int button, int x, int y, t_honk *honk)
 {
 	ft_empty_grid(honk);
+	printf("%i | %i\n", x, y);
 	if (honk->zoom < 1)
 		honk->zoom += 0.1;
 	else if (honk->zoom < 100)
 		honk->zoom++;
 	else
 		honk->zoom = 0.1;
+	ft_setmap(honk);
 	ft_draw(honk);
 	return (0);
 }
 
 int		ft_rotate_axis(t_honk *honk)
 {
-	if (honk->xrot || honk->yrot || honk->zrot)
+	if (honk->xrot != 2 && (honk->xrot || honk->yrot || honk->zrot))
 	{
 		honk->xang = (honk->xang + honk->xrot) % 360;
 		honk->yang = (honk->yang + honk->yrot) % 360;
 		honk->zang = (honk->zang + honk->zrot) % 360;
+		ft_empty_grid(honk);
+		ft_setmap(honk);
+		ft_rotateX(honk, (float)(M_PI * (float)honk->xang / (float)180));
+		ft_rotateY(honk, (float)(M_PI * (float)honk->yang / (float)180));
+		ft_rotateZ(honk, (float)(M_PI * (float)honk->zang / (float)180));
+		ft_draw(honk);
+	}
+	if (honk->xrot == 2)
+	{
+		honk->xang = (honk->xang == 360 || honk->xang == 0) ? 0 : (honk->xang >= 180) ? honk->xang + 1 : honk->xang - 1;
+		honk->yang = (honk->yang == 360 || honk->yang == 0) ? 0 : (honk->yang >= 180) ? honk->yang + 1 : honk->yang - 1;
+		honk->zang = (honk->zang == 360 || honk->zang == 0) ? 0 : (honk->zang >= 180) ? honk->zang + 1 : honk->zang - 1;;
 		ft_empty_grid(honk);
 		ft_setmap(honk);
 		ft_rotateX(honk, (float)(M_PI * (float)honk->xang / (float)180));
@@ -273,6 +420,10 @@ int		ft_key_pressed(int keycode, t_honk *honk)
 		honk->yrot = honk->yrot == 0 ? 1 : 0;
 	if (keycode == 6)
 		honk->zrot = honk->zrot == 0 ? 1 : 0;
+	if (keycode == 12)
+	{
+		honk->xrot = (honk->xrot == 2) ? 0 : 2;
+	}
 	printf("X %i | Y %i | Z %i\n", honk->xang, honk->yang, honk->zang);
 	return (0);
 }
@@ -339,19 +490,18 @@ int	main(int ac, char **av)
 				xmax = honk.grid[i][n].x;
 			if (ymax < honk.grid[i][n].y || !ymax)
 				ymax = honk.grid[i][n].y;
-			printf("% 5.1lf", honk.grid[i][n].y);
 			n++;
 		}
-		printf("\n");
 		i++;
 	}
-	ft_set_colors(&honk, zmin, zmax);
+//	ft_set_colors(&honk, zmin, zmax);
 	honk.xang = 0;
 	honk.yang = 0;
 	honk.zang = 0;
 	honk.xrot = 0;
 	honk.yrot = 0;
 	honk.zrot = 0;
+	honk.color = (int)0x00FFFFFF;
 	honk.prex = 500;
 	honk.prey = 500;
 	printf("||%i|%i\n", honk.ghei, honk.gwid);
@@ -364,7 +514,8 @@ int	main(int ac, char **av)
 	honk.img = mlx_new_image(honk.mlx, honk.width, honk.height);
 	honk.data = mlx_get_data_addr(honk.img, &honk.bpx, &honk.size, &honk.endian);
 	i = 0;
-	ft_rotate_axis(&honk);
+//	ft_rotate_axis(&honk);
+	ft_setmap(&honk);
 	ft_draw(&honk);
 	mlx_put_image_to_window(honk.mlx, honk.win, honk.img, 0, 0);
 	mlx_mouse_hook(honk.win, &ft_mouse_pressed, (void*)&honk);

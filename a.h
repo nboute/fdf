@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/12/05 16:59:51 by nboute            #+#    #+#             */
-/*   Updated: 2016/12/28 12:39:39 by nboute           ###   ########.fr       */
+/*   Updated: 2016/12/29 18:12:54 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,11 @@
 
 # define BLUE 0x000000FF
 # define GREEN 0x0000FF00
+# define YELLOW 0x00FFFF00
+# define RED 0x00FF0000
+# define PINK 0x00FF3399
+# define TURQUOISE 0x00CCCC
+# define VIOLET 0x00990099
 # define BROWN 0x00663300
 # define WHITE 0x00FFFFF
 # define PRE 500
@@ -40,6 +45,7 @@ typedef struct s_honk
 	int	xrot;
 	int	yrot;
 	int	zrot;
+	int	color;
 
 	int width;
 	int height;
@@ -51,7 +57,6 @@ typedef struct s_honk
 	int		zrange;
 	int		minval;
 	char	*data;
-	unsigned int color;
 
 }				t_honk;
 
