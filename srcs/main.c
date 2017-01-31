@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/04 22:27:31 by nboute            #+#    #+#             */
-/*   Updated: 2017/01/10 20:15:57 by nboute           ###   ########.fr       */
+/*   Updated: 2017/01/19 15:03:17 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ int			main(int ac, char **av)
 	t_honk	honk;
 	int		fd;
 
+	if (ac != 2)
+		ft_putstr_fd("Usage: ./fdf [filename]\n", 2);
 	if (ac != 2)
 		return (0);
 	if ((fd = open(av[1], O_RDONLY)) <= 2)

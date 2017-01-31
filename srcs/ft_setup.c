@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/04 19:12:28 by nboute            #+#    #+#             */
-/*   Updated: 2017/01/10 20:10:58 by nboute           ###   ########.fr       */
+/*   Updated: 2017/01/19 18:24:37 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,24 +18,24 @@ t_readlines	*ft_get_grid(int fd, t_honk *honk)
 	t_readlines	*tmp;
 	t_readlines	*start;
 
-	honk->gwid = 0;
-	honk->ghei = 1;
-	get_next_line(fd, &buff);
-	if (!(start = (t_readlines*)malloc(sizeof(t_readlines))))
-		return (0);
+	if (get_next_line(fd, &buff) <= 0)
+		ft_error();
+	start = (t_readlines*)ft_memalloc(sizeof(t_readlines));
 	tmp = start;
+	honk->ghei++;
 	tmp->tab = ft_strsplit(buff, ' ');
 	free(buff);
 	while (tmp->tab[honk->gwid])
 		honk->gwid++;
-	while (get_next_line(fd, &buff) > 0)
+	while (get_next_line(fd, &buff) > 0 && (honk->ghei++))
 	{
 		if (!(tmp->next = (t_readlines*)malloc(sizeof(t_readlines))))
 			return (0);
 		tmp = tmp->next;
 		tmp->tab = ft_strsplit(buff, ' ');
+		if ((int)ft_tablen(tmp->tab) != honk->gwid)
+			ft_error();
 		tmp->next = NULL;
-		honk->ghei++;
 		free(buff);
 	}
 	return (start);
@@ -56,7 +56,7 @@ void		ft_sethonk_p2(t_honk *honk, t_readlines *start, t_readlines *tmp)
 	int		i;
 	int		n;
 
-	honk->grid = (t_point**)malloc(sizeof(t_point*) * (honk->ghei));
+	honk->grid = (t_point**)malloc(sizeof(t_point*) * (honk->ghei + 1));
 	i = 0;
 	while (tmp && (n = -1) && i < honk->ghei)
 	{
@@ -74,6 +74,7 @@ void		ft_sethonk_p2(t_honk *honk, t_readlines *start, t_readlines *tmp)
 		tmp = tmp->next;
 		ft_clear_readline(start);
 	}
+	ft_clear_readline(tmp);
 	honk->grad = 0;
 	honk->grid[i] = NULL;
 }
@@ -111,6 +112,8 @@ void		ft_sethonk(t_honk *honk, int fd)
 {
 	t_readlines *tmp;
 
+	honk->gwid = 0;
+	honk->ghei = 0;
 	honk->color = 0;
 	honk->xang = 0;
 	honk->yang = 0;
@@ -121,17 +124,14 @@ void		ft_sethonk(t_honk *honk, int fd)
 	honk->zmin = 0;
 	honk->rs = 0.01;
 	honk->zmax = 0;
-	honk->prex = 500;
-	honk->prey = 500;
 	honk->width = 1000;
 	honk->height = 1000;
 	honk->mlx = mlx_init();
+	tmp = ft_get_grid(fd, honk);
 	honk->win = mlx_new_window(honk->mlx, honk->width, honk->height, "nboute");
 	honk->img = mlx_new_image(honk->mlx, honk->width, honk->height);
 	honk->data = mlx_get_data_addr(honk->img, &honk->bpx, &honk->size,
 			&honk->endian);
-	tmp = ft_get_grid(fd, honk);
 	ft_sethonk_p2(honk, tmp, tmp);
-	honk->zrange = (honk->zmin + honk->zmax) / 2;
 	honk->zoom = ((float)500 / honk->ghei + (float)500 / honk->gwid) / 2;
 }

@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/05 18:06:04 by nboute            #+#    #+#             */
-/*   Updated: 2017/01/10 19:52:00 by nboute           ###   ########.fr       */
+/*   Updated: 2017/01/19 14:47:13 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,8 @@ void		ft_clear_readline(t_readlines *elem)
 	{
 		if (elem->tab)
 			ft_tabdel(elem->tab);
+		elem->tab = NULL;
 		free(elem);
+		elem = NULL;
 	}
 }

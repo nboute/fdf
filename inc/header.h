@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/04 19:05:42 by nboute            #+#    #+#             */
-/*   Updated: 2017/01/10 19:55:19 by nboute           ###   ########.fr       */
+/*   Updated: 2017/01/16 17:16:04 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,8 +62,6 @@ typedef struct			s_honk
 	int					bpx;
 	int					size;
 	int					endian;
-	int					prex;
-	int					prey;
 	float				zoom;
 	float				xang;
 	float				xsang;

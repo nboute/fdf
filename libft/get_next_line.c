@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/21 12:28:00 by nboute            #+#    #+#             */
-/*   Updated: 2017/01/10 20:14:04 by nboute           ###   ########.fr       */
+/*   Updated: 2017/01/16 17:58:01 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,9 @@ char				*ft_read(int fd, char *str)
 			free(str);
 		str = tmp;
 	}
-	if (!ft_strchr(str, '\n') && ret)
-		str = ft_read(fd, str);
+	if (str)
+		if (!ft_strchr(str, '\n') && ret)
+			str = ft_read(fd, str);
 	return (str);
 }
 
@@ -74,19 +75,19 @@ int					get_next_line(const int fd, char **line)
 	*line = NULL;
 	current = ft_checkfd(&list, fd);
 	current->data = ft_read(fd, (current->data));
-	if (!*(current->data))
+	if (current->data)
+		if (!*(current->data))
+			ft_memdel((void**)&current->data);
+	if (!(current->data))
 	{
-		ft_memdel((void**)&current->data);
 		ft_memdel((void**)current);
 		return (0);
 	}
 	*line = ft_strcdup(current->data, '\n');
 	tmp = current->data;
 	size = ft_strclen(tmp, '\n');
-	if (tmp[size] == '\n')
-		size++;
+	size += tmp[size] == '\n' ? 1 : 0;
 	current->data = ft_strsub(tmp, size, ft_strlen(tmp) - size);
-	if (tmp)
-		free(tmp);
+	ft_strdel(&tmp);
 	return (1);
 }

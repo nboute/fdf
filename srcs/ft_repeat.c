@@ -6,7 +6,7 @@
 /*   By: nboute <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/04 19:08:50 by nboute            #+#    #+#             */
-/*   Updated: 2017/01/10 16:52:38 by nboute           ###   ########.fr       */
+/*   Updated: 2017/01/22 11:36:58 by nboute           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,8 @@ void		ft_place_point(t_honk *honk, double y, double x, int color)
 	int		xp;
 	int		yp;
 
-	xp = (honk->bpx / 8) * (x + honk->prex);
-	yp = (y + honk->prey) * honk->size;
+	xp = (honk->bpx / 8) * (x + 500);
+	yp = (y + 500) * honk->size;
 	if (xp >= 0 && xp < (honk->width * honk->bpx / 8) && yp >= 0
 			&& yp < (honk->width * honk->size))
 		if (!*(honk->data + yp + xp))
@@ -52,7 +52,6 @@ void		ft_empty_grid(t_honk *honk)
 	y = 0;
 	while (y < honk->height)
 		ft_bzero(honk->data + honk->size * y++, honk->width * honk->bpx / 8);
-	mlx_put_image_to_window(honk->mlx, honk->win, honk->img, 0, 0);
 }
 
 void		ft_draw(t_honk *honk)
